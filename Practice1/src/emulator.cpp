@@ -128,7 +128,6 @@ void executeCommand(
         }
 
         time_t currentTime = time(nullptr);
-
         cout << ctime(&currentTime);
     }
 
@@ -179,6 +178,68 @@ void executeCommand(
         for (int i = 0; i < numberOfLines && getline(stream, line); i++) {
             cout << line << endl;
         }
+    }
+
+    // rm command
+    else if (command == "rm") {
+        bool recursive = false;
+        string path;
+
+        if (arguments.size() == 2) {
+            path = arguments[1];
+        }
+        else if (arguments.size() == 3 && arguments[1] == "-r") {
+            recursive = true;
+            path = arguments[2];
+        }
+        else {
+            cout << "Usage: rm [-r] <path>" << endl;
+            return;
+        }
+
+        path = normalizePath(currentDirectory, path);
+
+        if (!vfs.remove(path, recursive)) {
+            cout << "rm: cannot remove '" << path
+                 << "': Operation failed" << endl;
+            return;
+        }
+
+        cout << "Removed: " << path << endl;
+    }
+
+    // cp command
+    else if (command == "cp") {
+        bool recursive = false;
+        string source;
+        string destination;
+
+        if (arguments.size() == 3) {
+            source = arguments[1];
+            destination = arguments[2];
+        }
+        else if (arguments.size() == 4 && arguments[1] == "-r") {
+            recursive = true;
+            source = arguments[2];
+            destination = arguments[3];
+        }
+        else {
+            cout << "Usage: cp [-r] <source> <destination>" << endl;
+            return;
+        }
+
+        source = normalizePath(currentDirectory, source);
+        destination = normalizePath(currentDirectory, destination);
+
+        if (!vfs.copy(source, destination, recursive)) {
+            cout << "cp: cannot copy '" << source
+                 << "' to '" << destination
+                 << "': Operation failed" << endl;
+            return;
+        }
+
+        cout << "Copied: " << source
+             << " -> " << destination << endl;
     }
 
     else {

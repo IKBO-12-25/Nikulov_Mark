@@ -22,6 +22,7 @@ private:
     void printEntry(const Entry& entry, int level) const;
 
     const Entry* findEntry(const string& path) const;
+    Entry* findEntry(const string& path);
 
 public:
     bool load(const string& path);
@@ -35,6 +36,9 @@ public:
         const string& path,
         vector<string>& entries
     ) const;
+
+    bool remove(const string& path, bool recursive);
+    bool copy(const string& source, const string& destination, bool recursive);
 };
 
 #endif

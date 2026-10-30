@@ -1,31 +1,32 @@
-// Stage 4 startup script
+// Stage 5: Additional Commands
 
-// Testing ls
-ls
-ls home
+// Copy file
+cp home/user/welcome.txt home/user/welcome_copy.txt
+ls home/user
+head home/user/welcome_copy.txt
+
+// Copy directory
+cp -r home/user/documents home/user/documents_backup
+ls home/user
+ls home/user/documents_backup
+head home/user/documents_backup/info.txt
+
+// Copy errors
+cp missing.txt copy.txt
+cp home/user/documents backup
+
+// Remove file
+rm home/user/welcome_copy.txt
 ls home/user
 
-// Testing cd
-cd home
-ls
-cd user
-ls
-cd documents
-ls
-cd ..
-ls
-cd /
+// Remove directory
+rm -r home/user/documents_backup
+ls home/user
 
- // Testing date
-date
+// Remove errors
+rm missing.txt
+rm home/user/documents
 
-// Testing head
-head home/user/welcome.txt
-head -n 1 home/user/welcome.txt
-head -n 2 home/user/documents/info.txt
-
-// Testing errors
-ls wrong_directory
-cd wrong_directory
-head missing.txt
-head -n abc home/user/welcome.txt
+// Invalid arguments
+rm
+cp

@@ -117,6 +117,46 @@ const VirtualFileSystem::Entry* VirtualFileSystem::findEntry(
     return current;
 }
 
+// Find mutable file or directory
+VirtualFileSystem::Entry* VirtualFileSystem::findEntry(
+    const string& path
+) {
+    if (path.empty() || path == ".") {
+        return &root;
+    }
+
+    Entry* current = &root;
+
+    stringstream stream(path);
+    string part;
+
+    while (getline(stream, part, '/')) {
+        if (part.empty() || part == ".") {
+            continue;
+        }
+
+        if (part == "..") {
+            return nullptr;
+        }
+
+        bool found = false;
+
+        for (Entry& child : current->children) {
+            if (child.name == part) {
+                current = &child;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            return nullptr;
+        }
+    }
+
+    return current;
+}
+
 // Check if entry exists
 bool VirtualFileSystem::exists(const string& path) const {
     return findEntry(path) != nullptr;
@@ -166,6 +206,110 @@ bool VirtualFileSystem::listDirectory(
 
         entries.push_back(name);
     }
+
+    return true;
+}
+
+// Remove file or directory from memory
+bool VirtualFileSystem::remove(
+    const string& path,
+    bool recursive
+) {
+    size_t position = path.find_last_of('/');
+
+    string parentPath;
+    string name;
+
+    if (position == string::npos) {
+        name = path;
+    }
+    else {
+        parentPath = path.substr(0, position);
+        name = path.substr(position + 1);
+    }
+
+    if (name.empty() || name == "." || name == "..") {
+        return false;
+    }
+
+    Entry* parent = findEntry(parentPath);
+
+    if (parent == nullptr || !parent->isDirectory) {
+        return false;
+    }
+
+    for (auto it = parent->children.begin();
+         it != parent->children.end(); ++it) {
+
+        if (it->name == name) {
+            if (it->isDirectory &&
+                !it->children.empty() &&
+                !recursive) {
+                return false;
+            }
+
+            parent->children.erase(it);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Copy file or directory in memory
+bool VirtualFileSystem::copy(
+    const string& source,
+    const string& destination,
+    bool recursive
+) {
+    const Entry* sourceEntry = findEntry(source);
+
+    if (sourceEntry == nullptr || sourceEntry == &root) {
+        return false;
+    }
+
+    if (sourceEntry->isDirectory && !recursive) {
+        return false;
+    }
+
+    size_t position = destination.find_last_of('/');
+
+    string parentPath;
+    string name;
+
+    if (position == string::npos) {
+        name = destination;
+    }
+    else {
+        parentPath = destination.substr(0, position);
+        name = destination.substr(position + 1);
+    }
+
+    if (name.empty() || name == "." || name == "..") {
+        return false;
+    }
+
+    Entry* parent = findEntry(parentPath);
+
+    if (parent == nullptr || !parent->isDirectory) {
+        return false;
+    }
+
+    for (const Entry& child : parent->children) {
+        if (child.name == name) {
+            return false;
+        }
+    }
+
+    Entry newEntry = *sourceEntry;
+    newEntry.name = name;
+
+    parent->children.push_back(newEntry);
+
+    sort(parent->children.begin(), parent->children.end(),
+         [](const Entry& a, const Entry& b) {
+             return a.name < b.name;
+         });
 
     return true;
 }
