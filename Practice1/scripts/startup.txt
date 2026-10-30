@@ -1,17 +1,31 @@
-// Stage 2 startup script
+// Stage 4 startup script
 
 // Testing ls
 ls
+ls home
+ls home/user
 
 // Testing cd
 cd home
-
-// Testing environment variables
-ls $HOME
-
-// Testing arguments
+ls
+cd user
+ls
 cd documents
-ls $USER
+ls
+cd ..
+ls
+cd /
 
-// Testing unknown command
-hello
+ // Testing date
+date
+
+// Testing head
+head home/user/welcome.txt
+head -n 1 home/user/welcome.txt
+head -n 2 home/user/documents/info.txt
+
+// Testing errors
+ls wrong_directory
+cd wrong_directory
+head missing.txt
+head -n abc home/user/welcome.txt

@@ -85,7 +85,7 @@ const VirtualFileSystem::Entry* VirtualFileSystem::findEntry(
         return &root;
     }
 
-    Entry const* current = &root;
+    const Entry* current = &root;
 
     stringstream stream(path);
     string part;
@@ -141,6 +141,32 @@ bool VirtualFileSystem::readFile(
     }
 
     content = entry->content;
+    return true;
+}
+
+// Get directory contents
+bool VirtualFileSystem::listDirectory(
+    const string& path,
+    vector<string>& entries
+) const {
+    const Entry* entry = findEntry(path);
+
+    if (entry == nullptr || !entry->isDirectory) {
+        return false;
+    }
+
+    entries.clear();
+
+    for (const Entry& child : entry->children) {
+        string name = child.name;
+
+        if (child.isDirectory) {
+            name += "/";
+        }
+
+        entries.push_back(name);
+    }
+
     return true;
 }
 

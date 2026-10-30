@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
     cout << "Startup script: " << fs::absolute(scriptPath) << endl;
     cout << "===================================" << endl;
 
+    // Load VFS
     VirtualFileSystem vfs;
 
     if (!vfs.load(vfsPath)) {
@@ -73,8 +74,15 @@ int main(int argc, char* argv[]) {
 
     cout << "Shell Emulator started" << endl;
 
+    string currentDirectory = "";
+
     // Execute startup script
-    if (!runStartupScript(scriptPath, vfsName, vfs)) {
+    if (!runStartupScript(
+        scriptPath,
+        vfsName,
+        vfs,
+        currentDirectory
+    )) {
         return 0;
     }
 
@@ -82,7 +90,13 @@ int main(int argc, char* argv[]) {
 
     // Interactive REPL
     while (true) {
-        cout << vfsName << " > ";
+        cout << vfsName;
+
+        if (!currentDirectory.empty()) {
+            cout << "/" << currentDirectory;
+        }
+
+        cout << " > ";
 
         if (!getline(cin, input)) {
             break;
@@ -99,7 +113,7 @@ int main(int argc, char* argv[]) {
             break;
         }
 
-        executeCommand(arguments, vfs);
+        executeCommand(arguments, vfs, currentDirectory);
     }
 
     return 0;

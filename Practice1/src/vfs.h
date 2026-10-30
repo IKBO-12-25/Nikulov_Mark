@@ -30,6 +30,11 @@ public:
     bool exists(const string& path) const;
     bool isDirectory(const string& path) const;
     bool readFile(const string& path, string& content) const;
+
+    bool listDirectory(
+        const string& path,
+        vector<string>& entries
+    ) const;
 };
 
 #endif

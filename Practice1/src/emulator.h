@@ -8,13 +8,15 @@
 
 void executeCommand(
     const std::vector<std::string>& arguments,
-    VirtualFileSystem& vfs
+    VirtualFileSystem& vfs,
+    std::string& currentDirectory
 );
 
 bool runStartupScript(
     const std::string& path,
     const std::string& vfsName,
-    VirtualFileSystem& vfs
+    VirtualFileSystem& vfs,
+    std::string& currentDirectory
 );
 
 #endif
