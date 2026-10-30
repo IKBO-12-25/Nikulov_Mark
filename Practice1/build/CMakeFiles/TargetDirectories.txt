@@ -1,3 +1,0 @@
-/Users/marknikulov/Downloads/Student/Linux/Practices/Practice1/build/CMakeFiles/ShellEmulator.dir
-/Users/marknikulov/Downloads/Student/Linux/Practices/Practice1/build/CMakeFiles/edit_cache.dir
-/Users/marknikulov/Downloads/Student/Linux/Practices/Practice1/build/CMakeFiles/rebuild_cache.dir

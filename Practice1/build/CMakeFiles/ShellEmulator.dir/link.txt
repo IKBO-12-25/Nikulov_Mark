@@ -1,1 +1,0 @@
-/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/ShellEmulator.dir/src/main.cpp.o CMakeFiles/ShellEmulator.dir/src/parser.cpp.o CMakeFiles/ShellEmulator.dir/src/emulator.cpp.o -o ShellEmulator

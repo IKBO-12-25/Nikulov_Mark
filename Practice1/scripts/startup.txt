@@ -1,0 +1,17 @@
+// Stage 2 startup script
+
+// Testing ls
+ls
+
+// Testing cd
+cd home
+
+// Testing environment variables
+ls $HOME
+
+// Testing arguments
+cd documents
+ls $USER
+
+// Testing unknown command
+hello

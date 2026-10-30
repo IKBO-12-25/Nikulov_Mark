@@ -10,3 +10,5 @@ add_executable(ShellEmulator
     src/parser.cpp
     src/emulator.cpp
 )
+
+target_compile_features(ShellEmulator PRIVATE cxx_std_17)
