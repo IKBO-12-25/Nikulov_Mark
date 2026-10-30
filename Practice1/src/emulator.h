@@ -4,8 +4,17 @@
 #include <string>
 #include <vector>
 
-void executeCommand(const std::vector<std::string>& arguments);
+#include "vfs.h"
 
-bool runStartupScript(const std::string& path, const std::string& vfsName);
+void executeCommand(
+    const std::vector<std::string>& arguments,
+    VirtualFileSystem& vfs
+);
+
+bool runStartupScript(
+    const std::string& path,
+    const std::string& vfsName,
+    VirtualFileSystem& vfs
+);
 
 #endif

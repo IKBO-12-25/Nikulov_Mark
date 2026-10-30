@@ -6,7 +6,10 @@
 
 using namespace std;
 
-void executeCommand(const vector<string>& arguments) {
+void executeCommand(
+    const vector<string>& arguments,
+    VirtualFileSystem& vfs
+) {
     if (arguments.empty()) {
         return;
     }
@@ -32,7 +35,11 @@ void executeCommand(const vector<string>& arguments) {
     }
 }
 
-bool runStartupScript(const string& path, const string& vfsName) {
+bool runStartupScript(
+    const string& path,
+    const string& vfsName,
+    VirtualFileSystem& vfs
+) {
     ifstream file(path);
 
     if (!file.is_open()) {
@@ -68,7 +75,7 @@ bool runStartupScript(const string& path, const string& vfsName) {
             return false;
         }
 
-        executeCommand(arguments);
+        executeCommand(arguments, vfs);
     }
 
     return true;

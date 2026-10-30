@@ -3,6 +3,7 @@
 #include <vector>
 #include <filesystem>
 
+#include "vfs.h"
 #include "parser.h"
 #include "emulator.h"
 
@@ -60,10 +61,20 @@ int main(int argc, char* argv[]) {
     cout << "Startup script: " << fs::absolute(scriptPath) << endl;
     cout << "===================================" << endl;
 
+    VirtualFileSystem vfs;
+
+    if (!vfs.load(vfsPath)) {
+        cerr << "Error: Failed to load VFS" << endl;
+        return 1;
+    }
+
+    cout << "VFS loaded successfully!" << endl;
+    vfs.print();
+
     cout << "Shell Emulator started" << endl;
 
     // Execute startup script
-    if (!runStartupScript(scriptPath, vfsName)) {
+    if (!runStartupScript(scriptPath, vfsName, vfs)) {
         return 0;
     }
 
@@ -88,7 +99,7 @@ int main(int argc, char* argv[]) {
             break;
         }
 
-        executeCommand(arguments);
+        executeCommand(arguments, vfs);
     }
 
     return 0;
