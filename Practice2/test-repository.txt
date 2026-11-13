@@ -1,0 +1,2 @@
+# Test repository for DependencyVisualizer
+# Graph format will be implemented in Stage 3
