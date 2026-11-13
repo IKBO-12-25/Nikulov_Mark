@@ -1,4 +1,3 @@
-
 #ifndef REPOSITORY_READER_H
 #define REPOSITORY_READER_H
 

@@ -3,7 +3,6 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Iinclude
 
 TARGET = DependencyVisualizer
-
 SRC_DIR = src
 BUILD_DIR = build
 
@@ -31,23 +30,37 @@ stage1: all
 stage2: all
 	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
 
-# Stage 2 with custom package
-stage2-custom: all
+# Stage 3: test repository
+stage3: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth $(MAX_DEPTH)
+
+# Test different graph scenarios
+test-depth-0: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 0
+
+test-depth-1: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 1
+
+test-depth-2: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 2
+
+test-cycle: all
+	./$(TARGET) --package G --repo test-repository.txt --test-mode true --max-depth 5
+
+test-diamond: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 5
+
+test-chain: all
+	./$(TARGET) --package I --repo test-repository.txt --test-mode true --max-depth 5
+
+# Real Alpine repository
+stage3-real: all
 	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
 
-stage2-errors: all
-	./$(TARGET) --package nonexistent-package-123 --repo $(REPO) --test-mode false --max-depth 3 || true
-	./$(TARGET) --package nginx --repo https://invalid.example.invalid/repo --test-mode false --max-depth 3 || true
-
-# Error tests
+# Errors
 test-errors: all
-	./$(TARGET) --package nginx --repo abc --test-mode false --max-depth 3 || true
-	./$(TARGET) --package "" --repo test-repository.txt --test-mode true --max-depth 2 || true
-	./$(TARGET) --package nginx --repo test-repository.txt --test-mode yes --max-depth 2 || true
-	./$(TARGET) --package nginx --repo test-repository.txt --test-mode true --max-depth -1 || true
-	./$(TARGET) --package nginx --repo test-repository.txt --test-mode true --max-depth abc || true
-	./$(TARGET) --package nginx --repo missing.txt --test-mode true --max-depth 2 || true
-	./$(TARGET) --unknown test || true
+	./$(TARGET) --package UNKNOWN --repo test-repository.txt --test-mode true --max-depth 3 || true
+	./$(TARGET) --package A --repo missing.txt --test-mode true --max-depth 3 || true
 
 help: all
 	./$(TARGET) --help
@@ -57,4 +70,4 @@ clean:
 
 rebuild: clean all
 
-.PHONY: all stage1 stage2 stage2-custom test-errors help clean rebuild
+.PHONY: all stage1 stage2 stage3 test-depth-0 test-depth-1 test-depth-2 test-cycle test-diamond test-chain stage3-real test-errors help clean rebuild

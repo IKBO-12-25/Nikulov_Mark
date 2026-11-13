@@ -3,9 +3,10 @@
 #include "ArgumentParser.h"
 #include "RepositoryReader.h"
 #include "ApkIndexParser.h"
+#include "DependencyGraph.h"
+#include "TestRepositoryReader.h"
 
 #include <iostream>
-#include <vector>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -17,52 +18,52 @@ int main(int argc, char* argv[]) {
 
     config.print();
 
-    if (config.testMode) {
-        std::cerr
-            << "Error: Stage 2 requires a remote Alpine repository URL. "
-            << "Test mode will be implemented in Stage 3.\n";
-
-        return 1;
-    }
-
-    std::string indexPath;
+    DependencyGraph::Graph graph;
     std::string error;
 
-    if (!RepositoryReader::downloadIndex(
-            config.repository,
-            indexPath,
-            error)) {
+    if (config.testMode) {
+        std::cout << "\nLoading test repository...\n";
 
-        std::cerr << "Error: " << error << '\n';
-        return 1;
-    }
-
-    std::vector<std::string> dependencies;
-
-    if (!ApkIndexParser::getDependencies(
-            indexPath,
-            config.packageName,
-            dependencies,
-            error)) {
-
-        std::cerr << "Error: " << error << '\n';
-        return 1;
-    }
-
-    std::cout << "\n=== Direct Dependencies ===\n";
-    std::cout << "Package: " << config.packageName << '\n';
-
-    if (dependencies.empty()) {
-        std::cout << "No direct dependencies found.\n";
+        if (!TestRepositoryReader::load(
+                config.repository,
+                graph,
+                error)) {
+            std::cerr << "Error: " << error << '\n';
+            return 1;
+        }
     }
     else {
-        for (const auto& dependency : dependencies) {
-            std::cout << "- " << dependency << '\n';
+        std::string indexPath;
+
+        if (!RepositoryReader::downloadIndex(
+                config.repository,
+                indexPath,
+                error)) {
+            std::cerr << "Error: " << error << '\n';
+            return 1;
+        }
+
+        if (!ApkIndexParser::loadGraph(
+                indexPath,
+                graph,
+                error)) {
+            std::cerr << "Error: " << error << '\n';
+            return 1;
         }
     }
 
-    std::cout << "\nTotal dependencies: "
-              << dependencies.size() << '\n';
+    DependencyGraph dependencyGraph(graph);
+
+    if (!dependencyGraph.contains(config.packageName)) {
+        std::cerr << "Error: Package not found: "
+                  << config.packageName << '\n';
+        return 1;
+    }
+
+    dependencyGraph.print(
+        config.packageName,
+        config.maxDepth
+    );
 
     return 0;
 }
