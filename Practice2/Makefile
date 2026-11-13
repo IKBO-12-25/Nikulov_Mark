@@ -1,4 +1,3 @@
-
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Iinclude
 
@@ -30,11 +29,11 @@ stage1: all
 stage2: all
 	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
 
-# Stage 3: test repository
+# Stage 3
 stage3: all
 	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth $(MAX_DEPTH)
 
-# Test different graph scenarios
+# Stage 3 tests
 test-depth-0: all
 	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 0
 
@@ -57,10 +56,28 @@ test-chain: all
 stage3-real: all
 	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
 
+# Stage 4: reverse dependencies
+stage4: all
+	./$(TARGET) --package F --repo test-repository.txt --test-mode true --max-depth $(MAX_DEPTH) --reverse true
+
+# Stage 4 tests
+test-reverse-f: all
+	./$(TARGET) --package F --repo test-repository.txt --test-mode true --max-depth 5 --reverse true
+
+test-reverse-b: all
+	./$(TARGET) --package B --repo test-repository.txt --test-mode true --max-depth 5 --reverse true
+
+test-reverse-a: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 5 --reverse true
+
+test-reverse-cycle: all
+	./$(TARGET) --package G --repo test-repository.txt --test-mode true --max-depth 5 --reverse true
+
 # Errors
 test-errors: all
 	./$(TARGET) --package UNKNOWN --repo test-repository.txt --test-mode true --max-depth 3 || true
 	./$(TARGET) --package A --repo missing.txt --test-mode true --max-depth 3 || true
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 3 --reverse invalid || true
 
 help: all
 	./$(TARGET) --help
@@ -70,4 +87,9 @@ clean:
 
 rebuild: clean all
 
-.PHONY: all stage1 stage2 stage3 test-depth-0 test-depth-1 test-depth-2 test-cycle test-diamond test-chain stage3-real test-errors help clean rebuild
+.PHONY: all stage1 stage2 stage3 stage3-real \
+	test-depth-0 test-depth-1 test-depth-2 \
+	test-cycle test-diamond test-chain \
+	stage4 test-reverse-f test-reverse-b \
+	test-reverse-a test-reverse-cycle \
+	test-errors help clean rebuild

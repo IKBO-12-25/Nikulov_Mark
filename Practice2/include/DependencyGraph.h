@@ -22,7 +22,8 @@ public:
         const std::string& root,
         int maxDepth
     ) const;
-
+    
+    void printReverse(const std::string& package, int maxDepth) const;
 private:
     Graph graph;
 

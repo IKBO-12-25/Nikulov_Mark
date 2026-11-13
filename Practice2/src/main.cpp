@@ -60,10 +60,17 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    dependencyGraph.print(
-        config.packageName,
-        config.maxDepth
+    if (config.reverseDependencies) {
+        dependencyGraph.printReverse(
+            config.packageName,
+            config.maxDepth
     );
+    } else {
+        dependencyGraph.print(
+            config.packageName,
+            config.maxDepth
+        );
+    }
 
     return 0;
 }

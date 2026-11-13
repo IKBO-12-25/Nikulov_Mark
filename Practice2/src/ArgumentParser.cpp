@@ -5,8 +5,6 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
-#include <charconv>
-#include <string>
 
 void ArgumentParser::printHelp() {
     std::cout
@@ -17,7 +15,8 @@ void ArgumentParser::printHelp() {
         << "  --package NAME       Package name\n"
         << "  --repo URL_OR_PATH   Repository URL or test file path\n"
         << "  --test-mode VALUE    true or false\n"
-        << "  --max-depth NUMBER  Maximum dependency depth\n"
+        << "  --max-depth NUMBER   Maximum dependency depth\n"
+        << "  --reverse VALUE      Show reverse dependencies (true or false)\n"
         << "  --help               Show this help message\n";
 }
 
@@ -44,22 +43,20 @@ bool ArgumentParser::parse(
         if (key != "--package" &&
             key != "--repo" &&
             key != "--test-mode" &&
-            key != "--max-depth") {
-            std::cerr << "Error: Unknown parameter: "
-                      << key << '\n';
+            key != "--max-depth" &&
+            key != "--reverse") {
+            std::cerr << "Error: Unknown parameter: " << key << '\n';
             return false;
         }
 
         if (arguments.count(key)) {
-            std::cerr << "Error: Duplicate parameter: "
-                      << key << '\n';
+            std::cerr << "Error: Duplicate parameter: " << key << '\n';
             return false;
         }
 
         if (i + 1 >= argc ||
             std::string(argv[i + 1]).rfind("--", 0) == 0) {
-            std::cerr << "Error: Missing value for "
-                      << key << '\n';
+            std::cerr << "Error: Missing value for " << key << '\n';
             return false;
         }
 
@@ -75,8 +72,7 @@ bool ArgumentParser::parse(
 
     for (const auto& key : required) {
         if (!arguments.count(key)) {
-            std::cerr << "Error: Missing required parameter: "
-                      << key << '\n';
+            std::cerr << "Error: Missing required parameter: " << key << '\n';
             return false;
         }
     }
@@ -113,12 +109,22 @@ bool ArgumentParser::parse(
         return false;
     }
 
-    const std::string& depth = arguments["--max-depth"];
+    if (arguments.count("--reverse")) {
+        const std::string& reverse = arguments["--reverse"];
 
-    if (depth.empty()) {
-        std::cerr << "Error: Maximum depth cannot be empty\n";
-        return false;
+        if (reverse == "true") {
+            config.reverseDependencies = true;
+        }
+        else if (reverse == "false") {
+            config.reverseDependencies = false;
+        }
+        else {
+            std::cerr << "Error: --reverse must be true or false\n";
+            return false;
+        }
     }
+
+    const std::string& depth = arguments["--max-depth"];
 
     auto result = std::from_chars(
         depth.data(),
@@ -126,11 +132,11 @@ bool ArgumentParser::parse(
         config.maxDepth
     );
 
-    if (result.ec != std::errc() ||
+    if (depth.empty() ||
+        result.ec != std::errc() ||
         result.ptr != depth.data() + depth.size() ||
         config.maxDepth < 0) {
-        std::cerr
-            << "Error: --max-depth must be a non-negative integer\n";
+        std::cerr << "Error: --max-depth must be a non-negative integer\n";
         return false;
     }
 
@@ -141,15 +147,13 @@ bool ArgumentParser::parse(
 
     if (config.testMode) {
         if (!RepositoryValidator::isValidTestFile(config.repository)) {
-            std::cerr
-                << "Error: Test repository must be an existing regular file\n";
+            std::cerr << "Error: Test repository must be an existing regular file\n";
             return false;
         }
     }
     else {
         if (!RepositoryValidator::isValidUrl(config.repository)) {
-            std::cerr
-                << "Error: Repository must be a valid HTTP or HTTPS URL\n";
+            std::cerr << "Error: Repository must be a valid HTTP or HTTPS URL\n";
             return false;
         }
     }

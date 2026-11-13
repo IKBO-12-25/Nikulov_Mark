@@ -62,3 +62,24 @@ void DependencyGraph::print(const std::string& root, int maxDepth) const {
 
     dfs(root, 0, maxDepth, visited, recursionStack);
 }
+
+void DependencyGraph::printReverse(const std::string& package, int maxDepth) const {
+    Graph reverseGraph;
+
+    for (const auto& [name, dependencies] : graph) {
+        for (const auto& dependency : dependencies) {
+            reverseGraph[dependency].push_back(name);
+        }
+    }
+
+    DependencyGraph reverseDependencyGraph(reverseGraph);
+
+    if (!reverseDependencyGraph.contains(package)) {
+        std::cout << "\nNo reverse dependencies found for: "
+                  << package << '\n';
+        return;
+    }
+
+    std::cout << "\n=== Reverse Dependency Graph ===\n";
+    reverseDependencyGraph.print(package, maxDepth);
+}
