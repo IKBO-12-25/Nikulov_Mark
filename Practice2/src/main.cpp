@@ -5,6 +5,7 @@
 #include "ApkIndexParser.h"
 #include "DependencyGraph.h"
 #include "TestRepositoryReader.h"
+#include "D2Generator.h"
 
 #include <iostream>
 #include <string>
@@ -72,5 +73,14 @@ int main(int argc, char* argv[]) {
         );
     }
 
+    if (!config.reverseDependencies) {
+        std::cout << "\n=== D2 Graph Description ===\n";
+
+        std::cout << D2Generator::generate(
+            graph,
+            config.packageName,
+            config.maxDepth
+    );
+}
     return 0;
 }

@@ -56,7 +56,7 @@ test-chain: all
 stage3-real: all
 	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
 
-# Stage 4: reverse dependencies
+# Stage 4
 stage4: all
 	./$(TARGET) --package F --repo test-repository.txt --test-mode true --max-depth $(MAX_DEPTH) --reverse true
 
@@ -72,6 +72,28 @@ test-reverse-a: all
 
 test-reverse-cycle: all
 	./$(TARGET) --package G --repo test-repository.txt --test-mode true --max-depth 5 --reverse true
+
+# Stage 5: D2 visualization
+stage5: all
+	./$(TARGET) --package $(PACKAGE) --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
+
+stage5-nginx: all
+	./$(TARGET) --package nginx --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
+
+stage5-curl: all
+	./$(TARGET) --package curl --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
+
+stage5-busybox: all
+	./$(TARGET) --package busybox --repo $(REPO) --test-mode false --max-depth $(MAX_DEPTH)
+
+stage5-examples: stage5-nginx stage5-curl stage5-busybox
+
+# Stage 5 test with test repository
+test-d2: all
+	./$(TARGET) --package A --repo test-repository.txt --test-mode true --max-depth 5
+
+test-d2-cycle: all
+	./$(TARGET) --package G --repo test-repository.txt --test-mode true --max-depth 5
 
 # Errors
 test-errors: all
@@ -92,4 +114,5 @@ rebuild: clean all
 	test-cycle test-diamond test-chain \
 	stage4 test-reverse-f test-reverse-b \
 	test-reverse-a test-reverse-cycle \
-	test-errors help clean rebuild
+	stage5 stage5-nginx stage5-curl stage5-busybox stage5-examples \
+	test-d2 test-d2-cycle test-errors help clean rebuild
